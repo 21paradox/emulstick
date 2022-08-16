@@ -3,7 +3,7 @@ import KeyBoard from '@uiw/react-mac-keyboard';
 import { useEffect, useCallback, useReducer, useRef } from 'react';
 import hotkeys from 'hotkeys-js';
 import * as emulstick from './emulstick';
-import { useMount } from 'react-use';
+import * as KeyCode from 'keycode-js'
 
 function initState() {
   return {
@@ -25,13 +25,12 @@ function App() {
   const keyboardServiceRef = useRef(null);
 
   const onKeyBoardMouseDown = useCallback((e, item) => {
-    console.log(item);
     if (item.keycode > -1) {
       dispatch({ keyStr: [item.keycode] });
       if (keyboardServiceRef.current) {
         emulstick.sendKeyDown(
           keyboardServiceRef.current,
-          item.name[0].toLowerCase(),
+          emulstick.KeyCodeMap[item.keycode],
         );
       }
     }
@@ -41,23 +40,23 @@ function App() {
     if (keyboardServiceRef.current) {
       emulstick.sendKeyUp(
         keyboardServiceRef.current,
-        item.name[0].toLowerCase(),
+        emulstick.KeyCodeMap[item.keycode],
       );
     }
   });
 
   const onKeyUpEvent = useCallback((e) => {
-    console.log(e);
-    // dispatch({
-    //   keyCode: [],
-    //   keyStr: []
-    // })
+    // console.log(e);
+    dispatch({
+      keyCode: [],
+      keyStr: []
+    })
   });
 
   useEffect(() => {
     document.addEventListener('keyup', onKeyUpEvent);
     const onkeydown = (e) => {
-      console.log(e);
+      // console.log(e);
     };
     document.addEventListener('keydown', onkeydown);
     function pkeys(keys, key) {
@@ -69,15 +68,65 @@ function App() {
       return keysStr;
     }
 
-    const listenHot = (evn) => {
+    const listenHot = async (evn) => {
+      console.log({
+        cmd: hotkeys.command,
+        control: hotkeys.control,
+        shift: hotkeys.shift,
+        alt: hotkeys.alt
+      }, evn.type, evn);
       evn.preventDefault();
       const keys = [];
       const keyStr = [];
+
+      let operation = ``;
+      if (evn.code === KeyCode.CODE_SHIFT_LEFT) {
+        operation = `000000010`;
+      } else if (evn.code === KeyCode.CODE_SHIFT_RIGHT) {
+        operation = `001000000`;
+      } else if (evn.code === KeyCode.CODE_CONTROL_LEFT) {
+        operation = `000000001`;
+      } else if (evn.code === KeyCode.CODE_CONTROL_RIGHT) {
+        operation = `000100000`;
+      } else if (evn.code === KeyCode.CODE_ALT_LEFT) {
+        operation = `000000100`;
+      } else if (evn.code === KeyCode.CODE_ALT_RIGHT) {
+        operation = `010000000`;
+      } else if (evn.code === KeyCode.CODE_ALT_LEFT) {
+        operation = `000001000`;
+      } else if (evn.code === KeyCode.CODE_ALT_RIGHT) {
+        operation = `100000000`;
+      }
+
+      if (operation) {
+        if (evn.type === 'keydown') {
+          emulstick.sendKeyDownSpecial(
+            keyboardServiceRef.current,
+            parseInt(operation, 2),
+          );
+        } else {
+          emulstick.sendKeyUpSpecial(
+            keyboardServiceRef.current,
+          );
+        }
+      } else {
+        if (evn.type === 'keydown') {
+          emulstick.sendKeyDown(
+            keyboardServiceRef.current,
+            emulstick.CodeMap[evn.code]
+          );
+        } else {
+          emulstick.sendKeyUp(
+            keyboardServiceRef.current,
+          );
+        }
+      }
+
       if (hotkeys.shift) {
         pkeys(keys, 16);
         pkeysStr(keyStr, 'shift');
       }
-      if (hotkeys.ctrl) {
+      if (hotkeys.ctrl || hotkeys.control) {
         pkeys(keys, 17);
         pkeysStr(keyStr, 'ctrl');
       }
@@ -85,20 +134,17 @@ function App() {
         pkeys(keys, 18);
         pkeysStr(keyStr, 'alt');
       }
-      if (hotkeys.control) {
-        pkeys(keys, 17);
-        pkeysStr(keyStr, 'control');
-      }
       if (hotkeys.command) {
         pkeys(keys, 91);
         pkeysStr(keyStr, 'command');
       }
+
       keyStr.push(evn.key);
       if (keys.indexOf(evn.code) === -1) keys.push(evn.keyCode);
       dispatch({ keyCode: keys, keyStr });
     };
 
-    hotkeys('*', listenHot);
+    hotkeys('*', { keyup: true }, listenHot);
 
     return () => {
       document.removeEventListener('keyup', onKeyUpEvent);
@@ -122,7 +168,6 @@ function App() {
           connect emulstick
         </button>
       </div>
-      <input />
       <KeyBoard
         style={{ top: 40 }}
         onMouseDown={onKeyBoardMouseDown}

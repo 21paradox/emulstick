@@ -1,3 +1,4 @@
+import * as KeyCode from 'keycode-js'
 export const CUSTOM_SERVICE_ID = '0000F800-0000-1000-8000-00805f9b34fb';
 export const KEYBOARD_CHARACTERISTIC_ID =
   '0000F801-0000-1000-8000-00805f9b34fb';
@@ -137,30 +138,197 @@ export const getKeyboardService = async (primaryService) => {
 // KB_MAC_F14 105 "F14"
 // KB_MAC_F15 106 "F15"
 
-
-const KeyStrMap = {
-  'a': 4,
-  'b': 5,
+const KeyMap = {
+  A: 4,
+  B: 5,
+  C: 6,
+  D: 7,
+  E: 8,
+  F: 9,
+  G: 10,
+  H: 11,
+  I: 12,
+  J: 13,
+  K: 14,
+  L: 15,
+  M: 16,
+  N: 17,
+  O: 18,
+  P: 19,
+  Q: 20,
+  R: 21,
+  S: 22,
+  T: 23,
+  U: 24,
+  V: 25,
+  W: 26,
+  X: 27,
+  Y: 28,
+  Z: 29,
+  "1": 30,
+  "2": 31,
+  "3": 32,
+  "4": 33,
+  "5": 34,
+  "6": 35,
+  "7": 36,
+  "8": 37,
+  "9": 38,
+  "0": 39,
+  "ENTER": 40,
+  "RETURN": 40,
+  "ESCAPE": 41,
+  "BACK_SPACE": 42,
+  "TAB": 43,
+  "SPACE": 44,
+  "MINUS": 45,
+  "DASH": 45,
+  "EQUALS": 46,
+  "OPEN_BRACKET": 47,
+  "CLOSE_BRACKET": 48,
+  "BACK_SLASH": 49,
+  // KB_NonUs_Hashtag 50    (Non - US / Ansi)
+  "SEMICOLON": 51,
+  "QUOTE": 52,
+  "BACK_QUOTE": 53,
+  "COMMA": 54,
+  "PERIOD": 55,
+  SLASH: 56,
+  CAPS_LOCK: 57,
+  F1: 58,
+  F2: 59,
+  F3: 60,
+  F4: 61,
+  F5: 62,
+  F6: 63,
+  F7: 64,
+  F8: 65,
+  F9: 66,
+  F10: 67,
+  F11: 68,
+  F12: 69,
+  PRINTSCREEN: 70,
+  SCROLL_LOCK: 71,
+  PAUSE: 72,
+  INSERT: 73,
+  HOME: 74,
+  PAGEUP: 75,
+  DELETE: 76,
+  END: 77,
+  PAGE_DOWN: 78,
+  RIGHT: 79,
+  LEFT: 80,
+  DOWN: 81,
+  UP: 82,
+  NUM_LOCK: 83, 
+  DIVIDE: 84,
+  MULTIPLY: 85, 
+  // MINUS: 86,
+  // PLUS: 87
+  // ENTER: 88
 }
 
-export const sendKeyDown = async (keyboardService, keyStr) => {
+export const KeyCodeMap = {}
+for (const key in KeyMap) {
+  KeyCodeMap[KeyCode[`KEY_${key}`]] = KeyMap[key]
+}
+
+export const CodeMap = {}
+for (const key in KeyMap) {
+  CodeMap[KeyCode[`CODE_${key}`]] = KeyMap[key]
+}
+
+// KP_1_and_End 89 "1", "End"
+// KP_2_and_DownArrow 90 "2", "Arrow Down"
+// KP_3_and_PageDown 91 "3", "Page Down"
+// KP_4_and_LeftArrow 92 "4", "Arrow Left"
+// KP_5 93 "5"
+// KP_6_and_RightArrow 94 "6", "Arrow Right"
+// KP_7_and_Home 95 "7", "Home"
+// KP_8_and_UpArrow 96 "8", "Arrow Up"
+// KP_9_and_PageUp 97 "9", "Page Up"
+// KP_0_and_Insert 98 "0", "Ins"
+// KP_Period_and_Delete 99 ".", "Del"
+// KB_NonUs_Slash_Right 100(Non - US / Ansi)
+// KB_PC_Application 101 "Menu"
+// KB_Power 102(Not a physical key）
+//   KP_Equal 103 "="
+// KB_MAC_F13 104 "F13"
+// KB_MAC_F14 105 "F14"
+// KB_MAC_F15 106 "F15"
+
+const q = []
+const pushQ = async (nextfn) => {
+  const nextTask = new Promise(async (resolve, reject) => {
+    await Promise.all(q)
+    resolve(nextfn())
+  })
+  q.push(nextTask)
+  await Promise.all(q)
+  q.length = 0
+}
+
+export const sendKeyDown = async (keyboardService, sendNum) => {
   const payload = new Uint8Array(8);
-  if (typeof KeyStrMap[keyStr] === 'undefined') {
-    throw keyStr
-  }
+  // if (typeof KeyStrMap[keyStr] === 'undefined') {
+  //   throw keyStr
+  // }
+
   payload[0] = 0;
   payload[1] = 0x00;
-  payload[2] = KeyStrMap[keyStr];
+  payload[2] = sendNum;
   payload[3] = 0;
   payload[4] = 0;
   payload[5] = 0;
   payload[6] = 0;
   payload[7] = 0;
-  const resp = await keyboardService.writeValueWithoutResponse(payload);
-  return resp
+  pushQ(() => {
+    keyboardService.writeValueWithoutResponse(payload);
+  })
+  // const resp = await keyboardService.writeValueWithoutResponse(payload);
+  // return resp
 }
 
-export const sendKeyUp = async (keyboardService, keyStr) => {
+export const sendKeyDownSpecial = async (keyboardService, operation) => {
+  const payload = new Uint8Array(8);
+  // if (typeof KeyStrMap[keyStr] === 'undefined') {
+  //   throw keyStr
+  // }
+  payload[0] = operation;
+  payload[1] = 0x00;
+  payload[2] = 0;
+  payload[3] = 0;
+  payload[4] = 0;
+  payload[5] = 0;
+  payload[6] = 0;
+  payload[7] = 0;
+  // const resp = await keyboardService.writeValueWithoutResponse(payload);
+  // return resp
+  pushQ(() => {
+    keyboardService.writeValueWithoutResponse(payload);
+  })
+}
+export const sendKeyUpSpecial = async (keyboardService) => {
+  const payload = new Uint8Array(8);
+  // if (typeof KeyStrMap[keyStr] === 'undefined') {
+  //   throw keyStr
+  // }
+  payload[0] = 0;
+  payload[1] = 0x00;
+  payload[2] = 0;
+  payload[3] = 0;
+  payload[4] = 0;
+  payload[5] = 0;
+  payload[6] = 0;
+  payload[7] = 0;
+  // const resp = await keyboardService.writeValueWithoutResponse(payload);
+  // return resp
+  pushQ(() => {
+    keyboardService.writeValueWithoutResponse(payload);
+  })
+}
+
+export const sendKeyUp = async (keyboardService) => {
   const payload = new Uint8Array(8);
   payload[0] = 0;
   payload[1] = 0x00;
@@ -170,6 +338,9 @@ export const sendKeyUp = async (keyboardService, keyStr) => {
   payload[5] = 0;
   payload[6] = 0;
   payload[7] = 0;
-  const resp = await keyboardService.writeValueWithoutResponse(payload);
-  return resp
+  // const resp = await keyboardService.writeValueWithoutResponse(payload);
+  // return resp
+  pushQ(() => {
+    keyboardService.writeValueWithoutResponse(payload);
+  })
 }
