@@ -34,7 +34,7 @@ function App() {
         );
       }
     }
-  });
+  },[]);
   const onKeyBoardMouseUp = useCallback((e, item) => {
     dispatch({ keyStr: [] });
     if (keyboardServiceRef.current) {
@@ -43,7 +43,7 @@ function App() {
         emulstick.KeyCodeMap[item.keycode],
       );
     }
-  });
+  },[]);
 
   const onKeyUpEvent = useCallback((e) => {
     // console.log(e);
@@ -51,7 +51,7 @@ function App() {
       keyCode: [],
       keyStr: []
     })
-  });
+  }, []);
 
   useEffect(() => {
     document.addEventListener('keyup', onKeyUpEvent);
@@ -151,7 +151,7 @@ function App() {
       document.removeEventListener('keydown', onkeydown);
       hotkeys.unbind('*', listenHot);
     };
-  }, []);
+  }, [onKeyUpEvent]);
 
   return (
     <div className="App">
