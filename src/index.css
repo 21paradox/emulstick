@@ -11,3 +11,23 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.bottompad {
+  position: absolute;
+  z-index: 10;
+  bottom: 0px;
+  width: 100%;
+  display: flex;
+}
+.bottompad button {
+  flex: 1;
+}
+
+.padwrap {
+  margin-left: 50px;
+  vertical-align: middle;
+  display: inline-block;
+  width: 200px;
+  height: 200px;
+  position: relative;
+}

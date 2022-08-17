@@ -1,9 +1,16 @@
 import './App.css';
 import KeyBoard from '@uiw/react-mac-keyboard';
-import { useEffect, useCallback, useReducer, useRef } from 'react';
+import {
+  useEffect,
+  useCallback,
+  useReducer,
+  useRef,
+  useLayoutEffect,
+} from 'react';
 import hotkeys from 'hotkeys-js';
+import nipplejs from 'nipplejs';
 import * as emulstick from './emulstick';
-import * as KeyCode from 'keycode-js'
+import * as KeyCode from 'keycode-js';
 
 function initState() {
   return {
@@ -24,6 +31,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, {}, initState);
   const keyboardServiceRef = useRef(null);
   const hotkeysMap = useRef({});
+  const mouseServiceRef = useRef(null);
 
   const onKeyBoardMouseDown = useCallback((e, item) => {
     if (item.keycode > -1) {
@@ -39,9 +47,7 @@ function App() {
   const onKeyBoardMouseUp = useCallback((e, item) => {
     dispatch({ keyStr: [] });
     if (keyboardServiceRef.current) {
-      emulstick.sendKeyUp(
-        keyboardServiceRef.current,
-      );
+      emulstick.sendKeyUp(keyboardServiceRef.current);
     }
   }, []);
 
@@ -49,11 +55,11 @@ function App() {
     // console.log(e);
     dispatch({
       keyCode: [],
-      keyStr: []
-    })
+      keyStr: [],
+    });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.addEventListener('keyup', onKeyUpEvent);
     const onkeydown = (e) => {
       // console.log(e);
@@ -69,54 +75,51 @@ function App() {
     }
 
     const listenHot = async (evn) => {
-      console.log({
-        cmd: hotkeys.command,
-        control: hotkeys.control,
-        shift: hotkeys.shift,
-        alt: hotkeys.alt,
-      }, evn.type, evn);
+      // console.log({
+      //   cmd: hotkeys.command,
+      //   control: hotkeys.control,
+      //   shift: hotkeys.shift,
+      //   alt: hotkeys.alt,
+      // }, evn.type, evn);
       evn.preventDefault();
       const keys = [];
       const keyStr = [];
 
       if (evn.type === 'keydown') {
-        hotkeysMap.current[evn.code] = true
+        hotkeysMap.current[evn.code] = true;
       } else {
-        hotkeysMap.current[evn.code] = null
+        hotkeysMap.current[evn.code] = null;
       }
-      const operationKeys = [
-        0, 0, 0, 0, 0, 0, 0, 0
-      ]
+      const operationKeys = [0, 0, 0, 0, 0, 0, 0, 0];
       if (hotkeysMap.current[KeyCode.CODE_SHIFT_LEFT]) {
-        operationKeys[6] = 1
+        operationKeys[6] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_SHIFT_RIGHT]) {
-        operationKeys[2] = 1
+        operationKeys[2] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_CONTROL_LEFT]) {
-        operationKeys[7] = 1
+        operationKeys[7] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_CONTROL_RIGHT]) {
-        operationKeys[3] = 1
+        operationKeys[3] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_ALT_LEFT]) {
-        operationKeys[5] = 1
+        operationKeys[5] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_ALT_RIGHT]) {
-        operationKeys[1] = 1
+        operationKeys[1] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_META_LEFT]) {
-        operationKeys[4] = 1
+        operationKeys[4] = 1;
       } else if (hotkeysMap.current[KeyCode.CODE_META_RIGHT]) {
-        operationKeys[0] = 1
+        operationKeys[0] = 1;
       }
-      const operationNum = parseInt(operationKeys.join(''), 2)
+      const operationNum = parseInt(operationKeys.join(''), 2);
 
-      if (evn.type === 'keydown') {
-        emulstick.sendKeyDown(
-          keyboardServiceRef.current,
-          emulstick.CodeMap[evn.code],
-          operationNum
-        );
-      } else {
-        emulstick.sendKeyUp(
-          keyboardServiceRef.current,
-          operationNum
-        );
+      if (keyboardServiceRef.current) {
+        if (evn.type === 'keydown') {
+          emulstick.sendKeyDown(
+            keyboardServiceRef.current,
+            emulstick.CodeMap[evn.code],
+            operationNum,
+          );
+        } else {
+          emulstick.sendKeyUp(keyboardServiceRef.current, operationNum);
+        }
       }
 
       if (hotkeys.shift) {
@@ -143,10 +146,45 @@ function App() {
 
     hotkeys('*', { keyup: true }, listenHot);
 
+    var stick = nipplejs.create({
+      zone: document.getElementById('semi'),
+      mode: 'static',
+      position: { left: '50%', top: '50%' },
+      color: 'red',
+      size: 90,
+      threshold: 0.22,
+    });
+
+    stick.on('move', (e, data) => {
+      const vector = data.vector;
+      emulstick.sendMouseEvent(
+        mouseServiceRef.current,
+        0,
+        vector.x * 5,
+        (0 - vector.y) * 5,
+      );
+    });
+
+    let startTime = null;
+    stick.on('start', () => {
+      startTime = Date.now();
+    });
+    stick.on('end', () => {
+      if (Date.now() - startTime < 200) {
+        const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
+        if (mouseServiceRef.current) {
+          const operationNum = parseInt(operationKeys.join(''), 2);
+          emulstick.sendMouseEvent(mouseServiceRef.current, operationNum, 0, 0);
+          emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
+        }
+      }
+    });
+
     return () => {
       document.removeEventListener('keyup', onKeyUpEvent);
       document.removeEventListener('keydown', onkeydown);
       hotkeys.unbind('*', listenHot);
+      stick.destroy();
     };
   }, [onKeyUpEvent]);
 
@@ -160,17 +198,74 @@ function App() {
               primaryService,
             );
             keyboardServiceRef.current = keyboardService;
+            const mouseService = await emulstick.getMouseService(
+              primaryService,
+            );
+            mouseServiceRef.current = mouseService;
           }}
         >
           connect emulstick
         </button>
       </div>
-      <KeyBoard
-        style={{ top: 40 }}
-        onMouseDown={onKeyBoardMouseDown}
-        onMouseUp={onKeyBoardMouseUp}
-        keyCode={state.keyCode}
-      />
+      <div style={{ width: '100%', textAlign: 'center', paddingTop: 40 }}>
+        <KeyBoard
+          style={{ display: 'inline-block', verticalAlign: 'middle' }}
+          onMouseDown={onKeyBoardMouseDown}
+          onMouseUp={onKeyBoardMouseUp}
+          keyCode={state.keyCode}
+        />
+        <div className="padwrap">
+          <div
+            id="semi"
+            className="padcontrol"
+            style={{
+              width: 200,
+              height: 200,
+              background: '#999',
+            }}
+          ></div>
+          <div className="bottompad">
+            <button
+              onMouseDown={(e) => {
+                e.nativeEvent.stopPropagation();
+                const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
+                const operationNum = parseInt(operationKeys.join(''), 2);
+                emulstick.sendMouseEvent(
+                  mouseServiceRef.current,
+                  operationNum,
+                  0,
+                  0,
+                );
+              }}
+              onMouseUp={(e) => {
+                e.nativeEvent.stopPropagation();
+                emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
+              }}
+            >
+              L
+            </button>
+            <button
+              onMouseDown={(e) => {
+                e.nativeEvent.stopPropagation();
+                const operationKeys = [0, 0, 0, 0, 0, 0, 1, 0];
+                const operationNum = parseInt(operationKeys.join(''), 2);
+                emulstick.sendMouseEvent(
+                  mouseServiceRef.current,
+                  operationNum,
+                  0,
+                  0,
+                );
+              }}
+              onMouseUp={(e) => {
+                e.nativeEvent.stopPropagation();
+                emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
+              }}
+            >
+              R
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

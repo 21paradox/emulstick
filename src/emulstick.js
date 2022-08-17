@@ -2,6 +2,8 @@ import * as KeyCode from 'keycode-js'
 export const CUSTOM_SERVICE_ID = '0000F800-0000-1000-8000-00805f9b34fb';
 export const KEYBOARD_CHARACTERISTIC_ID =
   '0000F801-0000-1000-8000-00805f9b34fb';
+export const MOUSE_CHARACTERISTIC_ID =
+  '0000F803-0000-1000-8000-00805f9b34fb';
 
 export const openBlueTooth = async () => {
   const options = {
@@ -31,6 +33,16 @@ export const getKeyboardService = async (primaryService) => {
   );
   return keyboardService;
 };
+
+
+export const getMouseService = async(primaryService) => {
+  const keyboardService = await primaryService.getCharacteristic(
+    MOUSE_CHARACTERISTIC_ID.toLowerCase(),
+  );
+  return keyboardService;
+};
+
+
 
 // KB_a_and_A 4 "a", "A"
 // KB_b_and_B 5 "b", "B"
@@ -284,6 +296,7 @@ export const sendKeyDown = async (keyboardService, sendNum, operation = 0) => {
   payload[5] = 0;
   payload[6] = 0;
   payload[7] = 0;
+  console.log(payload)
   pushQ(() => {
     keyboardService.writeValueWithoutResponse(payload);
   })
@@ -302,8 +315,40 @@ export const sendKeyUp = async (keyboardService, operation = 0) => {
   payload[6] = 0;
   payload[7] = 0;
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
+  console.log(payload)
   // return resp
   pushQ(() => {
     keyboardService.writeValueWithoutResponse(payload);
+  })
+}
+
+export const getInt8Vals = (num) => { // -2047 - 2047
+  const buffer = new ArrayBuffer(2);
+  const view = new DataView(buffer);
+  view.setInt16(0, num)
+  const low = view.getInt8(1)
+  const high = view.getInt8(0)
+
+  return {
+    high, 
+    low
+  }
+}
+
+export const sendMouseEvent = async (mouseService, operation = 0, posX, posY) => {
+  const payload = new Uint8Array(8);
+  payload[0] = operation;
+
+  const posXArr = getInt8Vals(posX)
+  const posYArr = getInt8Vals(posY)
+
+  payload[1] = posXArr.low;
+  payload[2] = posXArr.high;
+  payload[3] = posYArr.low;
+  payload[4] = posYArr.high;
+  payload[5] = 0;
+  // return resp
+  pushQ(() => {
+    mouseService.writeValueWithoutResponse(payload);
   })
 }
