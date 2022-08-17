@@ -23,6 +23,7 @@ function reducer(state, action) {
 function App() {
   const [state, dispatch] = useReducer(reducer, {}, initState);
   const keyboardServiceRef = useRef(null);
+  const hotkeysMap = useRef({});
 
   const onKeyBoardMouseDown = useCallback((e, item) => {
     if (item.keycode > -1) {
@@ -34,16 +35,15 @@ function App() {
         );
       }
     }
-  },[]);
+  }, []);
   const onKeyBoardMouseUp = useCallback((e, item) => {
     dispatch({ keyStr: [] });
     if (keyboardServiceRef.current) {
       emulstick.sendKeyUp(
         keyboardServiceRef.current,
-        emulstick.KeyCodeMap[item.keycode],
       );
     }
-  },[]);
+  }, []);
 
   const onKeyUpEvent = useCallback((e) => {
     // console.log(e);
@@ -73,53 +73,50 @@ function App() {
         cmd: hotkeys.command,
         control: hotkeys.control,
         shift: hotkeys.shift,
-        alt: hotkeys.alt
+        alt: hotkeys.alt,
       }, evn.type, evn);
       evn.preventDefault();
       const keys = [];
       const keyStr = [];
 
-      let operation = ``;
-      if (evn.code === KeyCode.CODE_SHIFT_LEFT) {
-        operation = `000000010`;
-      } else if (evn.code === KeyCode.CODE_SHIFT_RIGHT) {
-        operation = `001000000`;
-      } else if (evn.code === KeyCode.CODE_CONTROL_LEFT) {
-        operation = `000000001`;
-      } else if (evn.code === KeyCode.CODE_CONTROL_RIGHT) {
-        operation = `000100000`;
-      } else if (evn.code === KeyCode.CODE_ALT_LEFT) {
-        operation = `000000100`;
-      } else if (evn.code === KeyCode.CODE_ALT_RIGHT) {
-        operation = `010000000`;
-      } else if (evn.code === KeyCode.CODE_ALT_LEFT) {
-        operation = `000001000`;
-      } else if (evn.code === KeyCode.CODE_ALT_RIGHT) {
-        operation = `100000000`;
-      }
-
-      if (operation) {
-        if (evn.type === 'keydown') {
-          emulstick.sendKeyDownSpecial(
-            keyboardServiceRef.current,
-            parseInt(operation, 2),
-          );
-        } else {
-          emulstick.sendKeyUpSpecial(
-            keyboardServiceRef.current,
-          );
-        }
+      if (evn.type === 'keydown') {
+        hotkeysMap.current[evn.code] = true
       } else {
-        if (evn.type === 'keydown') {
-          emulstick.sendKeyDown(
-            keyboardServiceRef.current,
-            emulstick.CodeMap[evn.code]
-          );
-        } else {
-          emulstick.sendKeyUp(
-            keyboardServiceRef.current,
-          );
-        }
+        hotkeysMap.current[evn.code] = null
+      }
+      const operationKeys = [
+        0, 0, 0, 0, 0, 0, 0, 0
+      ]
+      if (hotkeysMap.current[KeyCode.CODE_SHIFT_LEFT]) {
+        operationKeys[6] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_SHIFT_RIGHT]) {
+        operationKeys[2] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_CONTROL_LEFT]) {
+        operationKeys[7] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_CONTROL_RIGHT]) {
+        operationKeys[3] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_ALT_LEFT]) {
+        operationKeys[5] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_ALT_RIGHT]) {
+        operationKeys[1] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_META_LEFT]) {
+        operationKeys[4] = 1
+      } else if (hotkeysMap.current[KeyCode.CODE_META_RIGHT]) {
+        operationKeys[0] = 1
+      }
+      const operationNum = parseInt(operationKeys.join(''), 2)
+
+      if (evn.type === 'keydown') {
+        emulstick.sendKeyDown(
+          keyboardServiceRef.current,
+          emulstick.CodeMap[evn.code],
+          operationNum
+        );
+      } else {
+        emulstick.sendKeyUp(
+          keyboardServiceRef.current,
+          operationNum
+        );
       }
 
       if (hotkeys.shift) {

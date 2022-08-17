@@ -268,14 +268,16 @@ const pushQ = async (nextfn) => {
   q.length = 0
 }
 
-export const sendKeyDown = async (keyboardService, sendNum) => {
+export const sendKeyDown = async (keyboardService, sendNum, operation = 0) => {
   const payload = new Uint8Array(8);
   // if (typeof KeyStrMap[keyStr] === 'undefined') {
   //   throw keyStr
   // }
-
-  payload[0] = 0;
-  payload[1] = 0x00;
+  if (typeof sendNum === 'undefined') {
+    sendNum = 0
+  }
+  payload[0] = operation;
+  payload[1] = 0;
   payload[2] = sendNum;
   payload[3] = 0;
   payload[4] = 0;
@@ -289,49 +291,10 @@ export const sendKeyDown = async (keyboardService, sendNum) => {
   // return resp
 }
 
-export const sendKeyDownSpecial = async (keyboardService, operation) => {
+export const sendKeyUp = async (keyboardService, operation = 0) => {
   const payload = new Uint8Array(8);
-  // if (typeof KeyStrMap[keyStr] === 'undefined') {
-  //   throw keyStr
-  // }
   payload[0] = operation;
-  payload[1] = 0x00;
-  payload[2] = 0;
-  payload[3] = 0;
-  payload[4] = 0;
-  payload[5] = 0;
-  payload[6] = 0;
-  payload[7] = 0;
-  // const resp = await keyboardService.writeValueWithoutResponse(payload);
-  // return resp
-  pushQ(() => {
-    keyboardService.writeValueWithoutResponse(payload);
-  })
-}
-export const sendKeyUpSpecial = async (keyboardService) => {
-  const payload = new Uint8Array(8);
-  // if (typeof KeyStrMap[keyStr] === 'undefined') {
-  //   throw keyStr
-  // }
-  payload[0] = 0;
-  payload[1] = 0x00;
-  payload[2] = 0;
-  payload[3] = 0;
-  payload[4] = 0;
-  payload[5] = 0;
-  payload[6] = 0;
-  payload[7] = 0;
-  // const resp = await keyboardService.writeValueWithoutResponse(payload);
-  // return resp
-  pushQ(() => {
-    keyboardService.writeValueWithoutResponse(payload);
-  })
-}
-
-export const sendKeyUp = async (keyboardService) => {
-  const payload = new Uint8Array(8);
-  payload[0] = 0;
-  payload[1] = 0x00;
+  payload[1] = 0;
   payload[2] = 0;
   payload[3] = 0;
   payload[4] = 0;
