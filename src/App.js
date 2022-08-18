@@ -152,24 +152,45 @@ function App() {
       position: { left: '50%', top: '50%' },
       color: 'red',
       size: 90,
-      threshold: 0.22,
+      // threshold: 0.22,
     });
+
+    let forceTimer = null
 
     stick.on('move', (e, data) => {
       const vector = data.vector;
-      emulstick.sendMouseEvent(
-        mouseServiceRef.current,
-        0,
-        vector.x * 5,
-        (0 - vector.y) * 5,
-      );
+      const force = data.force
+      const sendfn = (ratio) => {
+        emulstick.sendMouseEvent(
+          mouseServiceRef.current,
+          0,
+          vector.x * force * ratio,
+          (0 - vector.y) * force * ratio,
+        );
+      }
+      sendfn(1)
+      if (forceTimer) {
+        clearInterval(forceTimer)
+        forceTimer = null
+      }
+      forceTimer = setInterval(() =>{
+        sendfn(5)
+      }, 40)
     });
 
     let startTime = null;
     stick.on('start', () => {
+      if (forceTimer) {
+        clearInterval(forceTimer)
+        forceTimer = null
+      }
       startTime = Date.now();
     });
     stick.on('end', () => {
+      if (forceTimer) {
+        clearInterval(forceTimer)
+        forceTimer = null
+      }
       if (Date.now() - startTime < 200) {
         const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
         if (mouseServiceRef.current) {
