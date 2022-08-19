@@ -52,6 +52,18 @@ const useMouse = () => {
           0 - vely,
         );
       }}
+      onContextMenu={async (e) => {
+        e.preventDefault()
+        const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
+        const operationNum = parseInt(operationKeys.join(''), 2);
+        await emulstick.sendMouseEvent(
+          mouseServiceRef.current,
+          operationNum,
+          0,
+          0,
+        );
+        emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
+      }}
       style={{
         background: '#999',
       }}
