@@ -8,7 +8,7 @@ function Full() {
   const mouse = useMouse()
 
   return (
-    <div className="App" style={{position: 'fixed'}}>
+    <div className="App"> 
       <div style={{ marginTop: 30 }}>
         <button
           onClick={async () => {
@@ -29,6 +29,7 @@ function Full() {
 
       <div style={{ width: '100%', textAlign: 'center', paddingTop: 40 }}>
         {keyboard.dom}
+        <br />
         {mouse.dom}
       </div>
     </div>

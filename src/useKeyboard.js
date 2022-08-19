@@ -153,7 +153,6 @@ const useKeyboard = () => {
   }, []);
 
   const dom = <KeyBoard
-    style={{ display: 'inline-block', verticalAlign: 'middle' }}
     onMouseDown={onKeyBoardMouseDown}
     onMouseUp={onKeyBoardMouseUp}
     keyCode={state.keyCode}

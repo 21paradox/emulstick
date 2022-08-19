@@ -5,7 +5,10 @@ import useMouse from './useMouse'
 
 function Simple() {
   const keyboard =useKeyboard()
-  const mouse = useMouse()
+  const mouse = useMouse({
+    width: '100vw',
+    height: '100vw'
+  })
 
   return (
     <div style={{position: 'fixed'}}>
@@ -26,7 +29,7 @@ function Simple() {
           connect emulstick
         </button>
       </div>
-      <div style={{marginLeft: -50}}>
+      <div>
         {mouse.dom}
       </div>
     </div>

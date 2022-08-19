@@ -18,12 +18,15 @@ function reducer(state, action) {
   };
 }
 
-const useMouse = () => {
+const useMouse = (props ={}) => {
   const [state, dispatch] = useReducer(reducer, {}, initState);
   const mouseServiceRef = useRef(null);
   // const mouseServiceRef = useRef(null);
 
-  const dom = <div className="padwrap">
+  const dom = <div className="padwrap" style={{
+    width: props.width || 200,
+    height: props.height || 200,
+  }}>
     <div
       id="semi"
       className="padcontrol"
