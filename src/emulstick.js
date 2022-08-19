@@ -296,7 +296,6 @@ export const sendKeyDown = async (keyboardService, sendNum, operation = 0) => {
   payload[5] = 0;
   payload[6] = 0;
   payload[7] = 0;
-  console.log(payload)
   pushQ(() => {
     keyboardService.writeValueWithoutResponse(payload);
   })
@@ -315,7 +314,6 @@ export const sendKeyUp = async (keyboardService, operation = 0) => {
   payload[6] = 0;
   payload[7] = 0;
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
-  console.log(payload)
   // return resp
   pushQ(() => {
     keyboardService.writeValueWithoutResponse(payload);
