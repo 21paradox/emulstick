@@ -9,7 +9,6 @@
     "@uiw/react-mac-keyboard": "^1.1.4",
     "hotkeys-js": "^3.9.4",
     "keycode-js": "^3.1.0",
-    "nipplejs": "^0.9.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",

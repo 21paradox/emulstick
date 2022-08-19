@@ -8,7 +8,6 @@ import {
   useLayoutEffect,
 } from 'react';
 import hotkeys from 'hotkeys-js';
-import nipplejs from 'nipplejs';
 import * as emulstick from './emulstick';
 import * as KeyCode from 'keycode-js';
 
@@ -146,66 +145,10 @@ function App() {
 
     hotkeys('*', { keyup: true }, listenHot);
 
-    var stick = nipplejs.create({
-      zone: document.getElementById('semi'),
-      mode: 'static',
-      position: { left: '50%', top: '50%' },
-      color: 'red',
-      size: 90,
-      // threshold: 0.22,
-    });
-
-    let forceTimer = null
-
-    stick.on('move', (e, data) => {
-      const vector = data.vector;
-      const force = data.force
-      const sendfn = (ratio) => {
-        emulstick.sendMouseEvent(
-          mouseServiceRef.current,
-          0,
-          vector.x * force * ratio,
-          (0 - vector.y) * force * ratio,
-        );
-      }
-      sendfn(1)
-      if (forceTimer) {
-        clearInterval(forceTimer)
-        forceTimer = null
-      }
-      forceTimer = setInterval(() =>{
-        sendfn(5)
-      }, 40)
-    });
-
-    let startTime = null;
-    stick.on('start', () => {
-      if (forceTimer) {
-        clearInterval(forceTimer)
-        forceTimer = null
-      }
-      startTime = Date.now();
-    });
-    stick.on('end', () => {
-      if (forceTimer) {
-        clearInterval(forceTimer)
-        forceTimer = null
-      }
-      if (Date.now() - startTime < 200) {
-        const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
-        if (mouseServiceRef.current) {
-          const operationNum = parseInt(operationKeys.join(''), 2);
-          emulstick.sendMouseEvent(mouseServiceRef.current, operationNum, 0, 0);
-          emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
-        }
-      }
-    });
-
     return () => {
       document.removeEventListener('keyup', onKeyUpEvent);
       document.removeEventListener('keydown', onkeydown);
       hotkeys.unbind('*', listenHot);
-      stick.destroy();
     };
   }, [onKeyUpEvent]);
 
@@ -239,12 +182,37 @@ function App() {
           <div
             id="semi"
             className="padcontrol"
+            onMouseDown={(e) => {
+              e.nativeEvent.stopPropagation();
+              const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
+              const operationNum = parseInt(operationKeys.join(''), 2);
+              emulstick.sendMouseEvent(
+                mouseServiceRef.current,
+                operationNum,
+                0,
+                0,
+              );
+            }}
+            onMouseUp={(e) => {
+              e.nativeEvent.stopPropagation();
+              emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
+            }}
+            onWheelCapture={(e) => {
+              const velx = Number(e.deltaX)
+              const vely = Number(e.deltaY)
+              emulstick.sendMouseEvent(
+                mouseServiceRef.current,
+                0,
+                0 - velx,
+                0 - vely,
+              );
+            }}
             style={{
-              width: 200,
-              height: 200,
               background: '#999',
             }}
-          ></div>
+          >
+            <span>move using two fingers</span>
+          </div>
           <div className="bottompad">
             <button
               onMouseDown={(e) => {
@@ -284,7 +252,7 @@ function App() {
             >
               R
             </button>
-          </div>
+            </div>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
 }
 
 code {
@@ -30,4 +31,15 @@ code {
   width: 200px;
   height: 200px;
   position: relative;
+  overflow: hidden;
+  -webkit-overflow-scrolling: auto;
+  overscroll-behavior-y: none;
 }
+.padcontrol {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
