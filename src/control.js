@@ -198,6 +198,7 @@ function Control() {
         <div className="divider"></div>
         <div ref={videoWrapper} className="videowrapper" allow>
           {mouse.dom}
+          {mouse.dom1}
           <video
             style={{
               visibility: state.showVideo ? 'visible' : 'none'
@@ -212,6 +213,7 @@ function Control() {
           state.showVideo &&
           <button onClick={requestfull}> fullscreen video</button >
         }
+        {keyboard.dom}
       </div>
 
     </div>

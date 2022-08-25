@@ -334,7 +334,7 @@ export const getInt8Vals = (num) => { // -2047 - 2047
 }
 
 export const sendMouseEvent = async (mouseService, operation = 0, posX, posY) => {
-  const payload = new Uint8Array(8);
+  const payload = new Int8Array(8)
   payload[0] = operation;
 
   const posXArr = getInt8Vals(posX)
@@ -345,6 +345,20 @@ export const sendMouseEvent = async (mouseService, operation = 0, posX, posY) =>
   payload[3] = posYArr.low;
   payload[4] = posYArr.high;
   payload[5] = 0;
+  // return resp
+  pushQ(() => {
+    return mouseService.writeValueWithoutResponse(payload);
+  })
+}
+
+export const sendWheelEvent = async (mouseService,  wheel = 0) => {
+  const payload = new Int8Array(8)
+
+  payload[1] = 0
+  payload[2] = 0
+  payload[3] = 0
+  payload[4] = 0
+  payload[5] = wheel;
   // return resp
   pushQ(() => {
     return mouseService.writeValueWithoutResponse(payload);

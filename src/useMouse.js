@@ -23,7 +23,7 @@ const useMouse = (props ={}) => {
   const mouseServiceRef = useRef(null);
   // const mouseServiceRef = useRef(null);
 
-  const dom = <div className="padwrap" style={{
+  const dom = <div className="padwrap padwrap-mouse" style={{
     width: props.width || 200,
     height: props.height || 200,
   }}>
@@ -115,8 +115,52 @@ const useMouse = (props ={}) => {
     </div>
   </div>
 
+
+  const dom1 = <div className="padwrap padwrap-wheel" style={{
+    width: props.width || 200,
+    height: props.height || 200,
+  }}>
+    <div
+      id="semi"
+      className="panwheel"
+      onWheelCapture={(e) => {
+        e.nativeEvent.stopPropagation();
+        if (Date.now() % 2 === 0) {
+          return
+        }
+        if (Date.now() % 3 === 0) {
+          return
+        }
+        // const velx = Number(e.deltaX)
+        const vely = Number(e.deltaY)
+        let velyNew = vely
+        if (vely > 0) {
+          velyNew = Math.ceil(Math.pow(vely , 1/4))
+        } else if (vely < 0) {
+          velyNew = 0 - Math.floor(Math.pow(0 - vely, 1 / 4))
+        } else {
+          velyNew = 0
+        }
+        console.log(velyNew)
+        emulstick.sendWheelEvent(
+          mouseServiceRef.current,
+          0 - velyNew,
+        )
+      }}
+      onContextMenu={async (e) => {
+        e.preventDefault()
+      }}
+      style={{
+        background: '#999',
+      }}
+    >
+      <span>move using two fingers</span>
+    </div>
+  </div>
+
   return {
     dom,
+    dom1,
     state,
     mouseServiceRef,
   }
