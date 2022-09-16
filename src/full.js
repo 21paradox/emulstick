@@ -31,6 +31,7 @@ function Full() {
         {keyboard.dom}
         <br />
         {mouse.dom}
+        {mouse.dom1}
       </div>
     </div>
   );
