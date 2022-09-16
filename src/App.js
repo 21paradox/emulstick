@@ -1,6 +1,7 @@
 import './App.css';
 import {
   BrowserRouter,
+  HashRouter,
   Routes,
   Route,
 } from "react-router-dom";
@@ -10,7 +11,7 @@ import Control from './control';
 
 function App() {
  
-  return <BrowserRouter>
+  return <HashRouter>
     <Routes>
       <Route path="/simple" element={<Simple />}>
       </Route>
@@ -19,7 +20,7 @@ function App() {
       <Route path="/" element={<Full />}>
       </Route>
     </Routes> 
-  </BrowserRouter>
+  </HashRouter>
 }
 
 export default App;
