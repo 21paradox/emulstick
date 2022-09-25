@@ -297,7 +297,7 @@ export const sendKeyDown = async (keyboardService, sendNum, operation = 0) => {
   payload[6] = 0;
   payload[7] = 0;
   pushQ(() => {
-    return keyboardService.writeValueWithoutResponse(payload);
+    return keyboardService && keyboardService.writeValueWithoutResponse(payload);
   })
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
   // return resp
@@ -316,7 +316,7 @@ export const sendKeyUp = async (keyboardService, operation = 0) => {
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
   // return resp
   pushQ(() => {
-    return keyboardService.writeValueWithoutResponse(payload);
+    return keyboardService && keyboardService.writeValueWithoutResponse(payload);
   })
 }
 
@@ -345,9 +345,10 @@ export const sendMouseEvent = async (mouseService, operation = 0, posX, posY) =>
   payload[3] = posYArr.low;
   payload[4] = posYArr.high;
   payload[5] = 0;
+  // console.log(payload)
   // return resp
   pushQ(() => {
-    return mouseService.writeValueWithoutResponse(payload);
+    return mouseService && mouseService.writeValueWithoutResponse(payload);
   })
 }
 
@@ -361,6 +362,6 @@ export const sendWheelEvent = async (mouseService,  wheel = 0) => {
   payload[5] = wheel;
   // return resp
   pushQ(() => {
-    return mouseService.writeValueWithoutResponse(payload);
+    return mouseService && mouseService.writeValueWithoutResponse(payload);
   })
 }

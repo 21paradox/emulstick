@@ -199,6 +199,7 @@ function Control() {
         <div ref={videoWrapper} className="videowrapper" allow>
           {mouse.dom}
           {mouse.dom1}
+          {mouse.dom2}
           <video
             style={{
               visibility: state.showVideo ? 'visible' : 'none'

@@ -67,9 +67,6 @@ const useMouse = (props ={}) => {
         );
         emulstick.sendMouseEvent(mouseServiceRef.current, 0, 0, 0);
       }}
-      style={{
-        background: '#999',
-      }}
     >
       <span>move using two fingers</span>
     </div>
@@ -131,7 +128,6 @@ const useMouse = (props ={}) => {
         if (Date.now() % 3 === 0) {
           return
         }
-        // const velx = Number(e.deltaX)
         const vely = Number(e.deltaY)
         let velyNew = vely
         if (vely > 0) {
@@ -141,7 +137,6 @@ const useMouse = (props ={}) => {
         } else {
           velyNew = 0
         }
-        console.log(velyNew)
         emulstick.sendWheelEvent(
           mouseServiceRef.current,
           0 - velyNew,
@@ -154,13 +149,44 @@ const useMouse = (props ={}) => {
         background: '#999',
       }}
     >
-      <span>move using two fingers</span>
+      <span>move using two fingers(scroll)</span>
+    </div>
+  </div>
+
+  const dom2 = <div className="padwrap padwrap-drag" style={{
+    width: props.width || 200,
+    height: props.height || 200,
+  }}>
+    <div
+      id="semi"
+      className="panwheel"
+      onWheelCapture={(e) => {
+        const velx = Number(e.deltaX)
+        const vely = Number(e.deltaY)
+        const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
+        const operationNum = parseInt(operationKeys.join(''), 2);
+        emulstick.sendMouseEvent(
+          mouseServiceRef.current,
+          operationNum,
+          0 - velx,
+          0 - vely,
+        );
+      }}
+      onContextMenu={async (e) => {
+        e.preventDefault()
+      }}
+      style={{
+        background: '#999',
+      }}
+    >
+      <span>move using two fingers(drag)</span>
     </div>
   </div>
 
   return {
     dom,
     dom1,
+    dom2,
     state,
     mouseServiceRef,
   }
