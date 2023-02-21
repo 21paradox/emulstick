@@ -6,6 +6,7 @@ import {
   useReducer,
   useRef,
   useLayoutEffect,
+  memo
 } from 'react';
 import useKeyboard from './useKeyboard';
 import useMouse from './useMouse'
@@ -21,11 +22,14 @@ function initState() {
     selectedAudioDevice: -1,
     mousePadWidth: '200px',
     mousePadHeight: '200px',
-    connected: 'not connected'
+    connected: null
   };
 }
 
 function reducer(state, action) {
+  if (action.connected === state.connected) {
+    return state
+  }
   return {
     ...state,
     ...action,
@@ -35,6 +39,8 @@ function reducer(state, action) {
 function Control() {
   const keyboard = useKeyboard()
   const [state, dispatch] = useReducer(reducer, {}, initState);
+  const stateRef = useRef(state)
+  stateRef.current = state
   const mouse = useMouse({
     width: state.mousePadWidth,
     height: state.mousePadHeight,
@@ -101,20 +107,23 @@ function Control() {
       videoWrapper.current.requestFullscreen();
     }
   }
-
   const connRef = useRef(null)
   useEffect(() => {
     const timer = setInterval(() => {
       if (connRef.current?.connected === false) {
-        dispatch({
-          connected: 'not connected'
-        })
+        if (stateRef.current.connected !== connRef.current?.connected) {
+          dispatch({
+            connected: false
+          })
+        }
       } else if (connRef.current?.connected === true) {
-        dispatch({
-          connected: 'connected'
-        })
+        if (stateRef.current.connected !== connRef.current?.connected) {
+          dispatch({
+            connected: true
+          })
+        }
       }
-    }, 5 * 1000)
+    }, 2 * 1000)
     return () => {
       clearInterval(timer)
     }
@@ -141,7 +150,9 @@ function Control() {
           connect emulstick
         </button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        status: {state.connected}
+        status: 
+        {state.connected === true ? 'connected' : ''}
+        {state.connected === false ? 'not connected' : ''}
       </div>
 
       <div className="wrap">
