@@ -20,7 +20,8 @@ function initState() {
     selectedVideoDevice: -1,
     selectedAudioDevice: -1,
     mousePadWidth: '200px',
-    mousePadHeight: '200px'
+    mousePadHeight: '200px',
+    connected: 'not connected'
   };
 }
 
@@ -101,15 +102,35 @@ function Control() {
     }
   }
 
+  const connRef = useRef(null)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (connRef.current?.connected === false) {
+        dispatch({
+          connected: 'not connected'
+        })
+      } else if (connRef.current?.connected === true) {
+        dispatch({
+          connected: 'connected'
+        })
+      }
+    }, 5 * 1000)
+    return () => {
+      clearInterval(timer)
+    }
+  }, [])
+
+
   return (
     <div>
       <div style={{ marginTop: 10 }}>
         <button
           onClick={async () => {
-            const { primaryService } = await emulstick.openBlueTooth();
+            const { primaryService, conn } = await emulstick.openBlueTooth();
             const keyboardService = await emulstick.getKeyboardService(
               primaryService,
             );
+            connRef.current = conn
             keyboard.keyboardServiceRef.current = keyboardService;
             const mouseService = await emulstick.getMouseService(
               primaryService,
@@ -119,6 +140,8 @@ function Control() {
         >
           connect emulstick
         </button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        status: {state.connected}
       </div>
 
       <div className="wrap">
@@ -151,7 +174,7 @@ function Control() {
             {
               state.deviceList.length &&
               <select value={state.selectedVideoDevice} onChange={(e) => {
-              console.log(e)
+                console.log(e)
                 dispatch({
                   selectedVideoDevice: +e.target.value
                 })

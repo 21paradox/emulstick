@@ -296,9 +296,9 @@ export const sendKeyDown = async (keyboardService, sendNum, operation = 0) => {
   payload[5] = 0;
   payload[6] = 0;
   payload[7] = 0;
-  pushQ(() => {
+  // pushQ(() => {
     return keyboardService && keyboardService.writeValueWithoutResponse(payload);
-  })
+  // })
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
   // return resp
 }
@@ -315,9 +315,9 @@ export const sendKeyUp = async (keyboardService, operation = 0) => {
   payload[7] = 0;
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
   // return resp
-  pushQ(() => {
+  // pushQ(() => {
     return keyboardService && keyboardService.writeValueWithoutResponse(payload);
-  })
+  // })
 }
 
 export const getInt8Vals = (num) => { // -2047 - 2047
@@ -347,9 +347,9 @@ export const sendMouseEvent = async (mouseService, operation = 0, posX, posY) =>
   payload[5] = 0;
   // console.log(payload)
   // return resp
-  pushQ(() => {
+  // pushQ(() => {
     return mouseService && mouseService.writeValueWithoutResponse(payload);
-  })
+  // })
 }
 
 export const sendWheelEvent = async (mouseService,  wheel = 0) => {
@@ -361,7 +361,7 @@ export const sendWheelEvent = async (mouseService,  wheel = 0) => {
   payload[4] = 0
   payload[5] = wheel;
   // return resp
-  pushQ(() => {
+  // pushQ(() => {
     return mouseService && mouseService.writeValueWithoutResponse(payload);
-  })
+  // })
 }
