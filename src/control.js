@@ -89,7 +89,14 @@ function Control() {
         frameRate: state.frameRate,
       },
       audio: {
-        deviceId: state.deviceList[state.selectedAudioDevice].deviceId,
+        autoGainControl: true,
+        // deviceId: "default",
+        echoCancellationType: "system",
+        sampleSize: 16,
+        sampleRate: { ideal: 48000 },
+        channelCount: 2,
+        echoCancellation: false,
+        noiseSuppression: false
       },
     });
     console.log(media);
