@@ -59,7 +59,7 @@ const useMouse = (props ={}) => {
         e.preventDefault()
         const operationKeys = [0, 0, 0, 0, 0, 0, 0, 1];
         const operationNum = parseInt(operationKeys.join(''), 2);
-        await emulstick.sendMouseEvent(
+        emulstick.sendMouseEvent(
           mouseServiceRef.current,
           operationNum,
           0,

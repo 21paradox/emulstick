@@ -36,6 +36,14 @@ function reducer(state, action) {
   };
 }
 
+function sleep(t) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, t)
+  })
+}
+
 function Control() {
   const keyboard = useKeyboard()
   const [state, dispatch] = useReducer(reducer, {}, initState);
@@ -142,6 +150,10 @@ function Control() {
       <div style={{ marginTop: 10 }}>
         <button
           onClick={async () => {
+            if (connRef.current && connRef.current.connected) {
+              await connRef.current.disconnect();
+              await sleep(2000);
+            }
             const { primaryService, conn } = await emulstick.openBlueTooth();
             const keyboardService = await emulstick.getKeyboardService(
               primaryService,
@@ -205,24 +217,6 @@ function Control() {
               </select>
             }
           </label>
-
-          <label>
-            audio:
-            {
-              state.deviceList.length &&
-              <select value={state.selectedAudioDevice} onChange={(e) => {
-                dispatch({
-                  selectedAudioDevice: Number(e.target.value)
-                })
-              }}>
-                {
-                  state.deviceList.map((v, i) => {
-                    return <option value={i}>{v.kind + ' ' + v.label}</option>
-                  })
-                }
-              </select>
-            }
-          </label>
         </fieldset >
 
         <div className="divider"></div>
@@ -237,7 +231,7 @@ function Control() {
         <button onClick={beginCapture}> beginCapture</button >
 
         <div className="divider"></div>
-        <div ref={videoWrapper} className="videowrapper" allow>
+        <div ref={videoWrapper} className="videowrapper">
           {mouse.dom}
           {mouse.dom1}
           {mouse.dom2}
