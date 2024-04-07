@@ -35,7 +35,7 @@ export const getKeyboardService = async (primaryService) => {
 };
 
 
-export const getMouseService = async(primaryService) => {
+export const getMouseService = async (primaryService) => {
   const keyboardService = await primaryService.getCharacteristic(
     MOUSE_CHARACTERISTIC_ID.toLowerCase(),
   );
@@ -232,9 +232,9 @@ const KeyMap = {
   LEFT: 80,
   DOWN: 81,
   UP: 82,
-  NUM_LOCK: 83, 
+  NUM_LOCK: 83,
   DIVIDE: 84,
-  MULTIPLY: 85, 
+  MULTIPLY: 85,
   // MINUS: 86,
   // PLUS: 87
   // ENTER: 88
@@ -297,7 +297,7 @@ export const sendKeyDown = async (keyboardService, sendNum, operation = 0) => {
   payload[6] = 0;
   payload[7] = 0;
   // pushQ(() => {
-    return keyboardService && keyboardService.writeValueWithoutResponse(payload);
+  return keyboardService && keyboardService.writeValueWithoutResponse(payload);
   // })
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
   // return resp
@@ -316,7 +316,7 @@ export const sendKeyUp = async (keyboardService, operation = 0) => {
   // const resp = await keyboardService.writeValueWithoutResponse(payload);
   // return resp
   // pushQ(() => {
-    return keyboardService && keyboardService.writeValueWithoutResponse(payload);
+  return keyboardService && keyboardService.writeValueWithoutResponse(payload);
   // })
 }
 
@@ -328,7 +328,7 @@ export const getInt8Vals = (num) => { // -2047 - 2047
   const high = view.getInt8(0)
 
   return {
-    high, 
+    high,
     low
   }
 }
@@ -348,11 +348,11 @@ export const sendMouseEvent = async (mouseService, operation = 0, posX, posY) =>
   // console.log(payload)
   // return resp
   // pushQ(() => {
-    return mouseService && mouseService.writeValueWithoutResponse(payload);
+  return mouseService && mouseService.writeValueWithoutResponse(payload);
   // })
 }
 
-export const sendWheelEvent = async (mouseService,  wheel = 0) => {
+export const sendWheelEvent = async (mouseService, wheel = 0) => {
   const payload = new Int8Array(8)
 
   payload[1] = 0
@@ -362,6 +362,332 @@ export const sendWheelEvent = async (mouseService,  wheel = 0) => {
   payload[5] = wheel;
   // return resp
   // pushQ(() => {
-    return mouseService && mouseService.writeValueWithoutResponse(payload);
+  return mouseService && mouseService.writeValue(payload);
   // })
+}
+
+
+export const sendByString = async (keyboardService, str) => {
+  const str1 = str || "";
+  const opNum = (cb) => {
+    const operationKeys = [0, 0, 0, 0, 0, 0, 0, 0];
+    if (cb) {
+      cb(operationKeys)
+    }
+    const operationNum = parseInt(operationKeys.join(''), 2);
+    return operationNum
+  }
+
+  const sendKeyDown = async (sendNum, operation = 0) => {
+    const payload = new Uint8Array(8);
+    if (typeof sendNum === 'undefined') {
+      sendNum = 0
+    }
+    payload[0] = operation;
+    payload[1] = 0;
+    payload[2] = sendNum;
+    payload[3] = 0;
+    payload[4] = 0;
+    payload[5] = 0;
+    payload[6] = 0;
+    payload[7] = 0;
+    return keyboardService.writeValueWithResponse(payload);
+  }
+
+  const sendKeyUp = async (operation = 0) => {
+    const payload = new Uint8Array(8);
+    payload[0] = operation;
+    payload[1] = 0;
+    payload[2] = 0;
+    payload[3] = 0;
+    payload[4] = 0;
+    payload[5] = 0;
+    payload[6] = 0;
+    payload[7] = 0;
+    return keyboardService.writeValueWithResponse(payload);
+  }
+  for (let i = 0; i < str1.length; i++) {
+    const key = str1[i]
+
+    switch (key) {
+      case '~': {
+        const keytoSend = KeyMap['BACK_QUOTE']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '`': {
+        const keytoSend = KeyMap['BACK_QUOTE']
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+      case '!': {
+        const keytoSend = KeyMap['1']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '@': {
+        const keytoSend = KeyMap['2']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '#': {
+        const keytoSend = KeyMap['3']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '$': {
+        const keytoSend = KeyMap['4']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '%': {
+        const keytoSend = KeyMap['5']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '^': {
+        const keytoSend = KeyMap['6']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '&': {
+        const keytoSend = KeyMap['7']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '*': {
+        const keytoSend = KeyMap['8']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '(': {
+        const keytoSend = KeyMap['9']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case ')': {
+        const keytoSend = KeyMap['0']
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '_': {
+        const keytoSend = KeyMap.MINUS
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '-': {
+        const keytoSend = KeyMap.MINUS
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+
+      case '+': {
+        const keytoSend = KeyMap.EQUALS
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+
+      case '=': {
+        const keytoSend = KeyMap.EQUALS
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+
+      case '{': {
+        const keytoSend = KeyMap.OPEN_BRACKET
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '[': {
+        const keytoSend = KeyMap.OPEN_BRACKET
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+      case '}': {
+        const keytoSend = KeyMap.CLOSE_BRACKET
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case ']': {
+        const keytoSend = KeyMap.CLOSE_BRACKET
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+      case ':': {
+        const keytoSend = KeyMap.SEMICOLON
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case ';': {
+        const keytoSend = KeyMap.SEMICOLON
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+      case '"': {
+        const keytoSend = KeyMap.QUOTE
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case "'": {
+        const keytoSend = KeyMap.QUOTE
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+      case '<': {
+        const keytoSend = KeyMap.COMMA
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case ',': {
+        const keytoSend = KeyMap.COMMA
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '>': {
+        const keytoSend = KeyMap.PERIOD
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+      case '.': {
+        const keytoSend = KeyMap.PERIOD
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+      case '?': {
+        const keytoSend = KeyMap.SLASH
+        await sendKeyDown(keytoSend, opNum((opkeys) => {
+          opkeys[6] = 1 // shift
+        }))
+        await sendKeyUp()
+        break
+      }
+
+      case '/': {
+        const keytoSend = KeyMap.SLASH
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+
+      case ' ': {
+        const keytoSend = KeyMap.SPACE
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
+
+      case 'A':
+      case 'B':
+      case 'C':
+      case 'D':
+      case 'E':
+      case 'F':
+      case 'G':
+      case 'H':
+      case 'I':
+      case 'J':
+      case 'K':
+      case 'L':
+      case 'M':
+      case 'N':
+      case 'O':
+      case 'P':
+      case 'Q':
+      case 'R':
+      case 'S':
+      case 'T':
+      case 'U':
+      case 'V':
+      case 'W':
+      case 'X':
+      case 'Y':
+      case 'Z':
+        {
+          const keytoSend = KeyMap[key]
+          await sendKeyDown(keytoSend, opNum((opkeys) => {
+            opkeys[6] = 1 // shift
+          }))
+          await sendKeyUp()
+          break
+        }
+      default: {
+        if (/[0-9a-z]/.test(key)) {
+          const keytoSend = KeyMap[key.toUpperCase()]
+          if (typeof keytoSend === 'number') {
+            await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+            await sendKeyUp()
+          }
+        }
+      }
+    }
+  }
+
+
 }

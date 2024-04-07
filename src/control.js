@@ -22,7 +22,9 @@ function initState() {
     selectedAudioDevice: -1,
     mousePadWidth: '200px',
     mousePadHeight: '200px',
-    connected: null
+    connected: null,
+    videoScale: 1,
+    strToSend: ''
   };
 }
 
@@ -55,6 +57,7 @@ function Control() {
   })
   const videoElem = useRef(null)
   const videoWrapper = useRef(null)
+  const videoWrapper2 = useRef(null)
 
   const requestDevice = async () => {
     const device = await navigator.usb.requestDevice({
@@ -122,6 +125,13 @@ function Control() {
       videoWrapper.current.requestFullscreen();
     }
   }
+  const requestFullVideo = () => {
+    if (videoWrapper2.current.webkitRequestFullscreen) {
+      videoWrapper2.current.webkitRequestFullscreen();
+    } else if (videoWrapper2.current.requestFullscreen()) {
+      videoWrapper2.current.requestFullscreen();
+    }
+  }
   const connRef = useRef(null)
   useEffect(() => {
     const timer = setInterval(() => {
@@ -169,7 +179,7 @@ function Control() {
           connect emulstick
         </button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        status: 
+        status:
         {state.connected === true ? 'connected' : ''}
         {state.connected === false ? 'not connected' : ''}
       </div>
@@ -229,25 +239,61 @@ function Control() {
 
         <div className="divider"></div>
         <button onClick={beginCapture}> beginCapture</button >
-
         <div className="divider"></div>
         <div ref={videoWrapper} className="videowrapper">
           {mouse.dom}
           {mouse.dom1}
           {mouse.dom2}
-          <video
-            style={{
-              visibility: state.showVideo ? 'visible' : 'none'
-            }}
-            autoPlay
-            ref={videoElem}
-            className="cameravideo"
-          ></video>
+          <div ref={videoWrapper2} className='videowrapper2'>
+            <video
+              style={{
+                visibility: state.showVideo ? 'visible' : 'none',
+                transform: `scale(${state.videoScale})`
+              }}
+              autoPlay
+              ref={videoElem}
+              className="cameravideo"
+            ></video>
+          </div>
         </div>
         <div className="divider"></div>
         {
           state.showVideo &&
-          <button onClick={requestfull}> fullscreen video</button >
+          <>
+            <button onClick={requestfull}> fullscreen video(with touchpad)</button >
+            &nbsp;
+            <button onClick={requestFullVideo}> fullscreen video(only)</button >
+            <br />
+            <label>
+              video scale: &nbsp;
+              <input type="number" value={state.videoScale} onChange={(e) => {
+                dispatch({
+                  videoScale: e.target.value
+                })
+              }}></input>
+            </label>
+
+          </>
+        }
+
+        {
+          <>
+            <br />
+            <div>
+              &nbsp; send by string: &nbsp;
+              <input
+                size={state.strToSend.length + 5}
+                type="string" value={state.strToSend} onChange={(e) => {
+                  dispatch({
+                    strToSend: e.target.value
+                  })
+                }}></input>
+              <button onClick={() => {
+                  emulstick.sendByString(keyboard.keyboardServiceRef.current, state.strToSend)
+              }}>type</button >
+            </div>
+            <br />
+          </>
         }
         {keyboard.dom}
       </div>

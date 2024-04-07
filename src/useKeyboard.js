@@ -31,9 +31,9 @@ const useKeyboard = () => {
   const keyboardServiceRef = useRef(null);
   const hotkeysMap = useRef({});
   // const mouseServiceRef = useRef(null);
+  const interValMap = useRef({})
 
   const onKeyUpEvent = useCallback((e) => {
-    // console.log(e);
     dispatch({
       keyCode: [],
       keyStr: [],
@@ -43,7 +43,7 @@ const useKeyboard = () => {
   useLayoutEffect(() => {
     document.addEventListener('keyup', onKeyUpEvent);
     const onkeydown = (e) => {
-      // console.log(e);
+      // console.log(e, 'onkeydown');
     };
     document.addEventListener('keydown', onkeydown);
     function pkeys(keys, key) {
@@ -68,8 +68,18 @@ const useKeyboard = () => {
 
       if (evn.type === 'keydown') {
         hotkeysMap.current[evn.code] = true;
+        for (const key in interValMap.current) {
+          if (interValMap[key]) {
+            clearInterval(interValMap[key])
+          }
+        }
+        interValMap.current = {}
+
       } else {
         hotkeysMap.current[evn.code] = null;
+        if (interValMap[evn.code]) {
+          clearInterval(interValMap[evn.code])
+        }
       }
       const operationKeys = [0, 0, 0, 0, 0, 0, 0, 0];
       if (hotkeysMap.current[KeyCode.CODE_SHIFT_LEFT]) {
@@ -125,14 +135,14 @@ const useKeyboard = () => {
       dispatch({ keyCode: keys, keyStr });
     };
 
-    hotkeys('*', { keyup: true }, listenHot);
+    hotkeys('*', { keyup: true, keydown: true }, listenHot);
 
     return () => {
       document.removeEventListener('keyup', onKeyUpEvent);
       document.removeEventListener('keydown', onkeydown);
       hotkeys.unbind('*', listenHot);
     };
-  }, [onKeyUpEvent]);
+  }, []);
 
   const onKeyBoardMouseDown = useCallback((e, item) => {
     if (item.keycode > -1) {

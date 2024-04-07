@@ -106,3 +106,16 @@ code {
   border-left: 1px solid red;
   bottom: 0;
 }
+#webpack-dev-server-client-overlay {
+  display: none;
+}
+.videowrapper2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.divider {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
