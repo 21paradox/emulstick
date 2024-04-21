@@ -563,6 +563,12 @@ export const sendByString = async (keyboardService, str) => {
         await sendKeyUp()
         break
       }
+      case '|': {
+        const keytoSend = KeyMap.BACK_SLASH
+        await sendKeyDown(keytoSend, opNum((opkeys) => { }))
+        await sendKeyUp()
+        break
+      }
       case ':': {
         const keytoSend = KeyMap.SEMICOLON
         await sendKeyDown(keytoSend, opNum((opkeys) => {
@@ -688,6 +694,6 @@ export const sendByString = async (keyboardService, str) => {
       }
     }
   }
-
+  await sendKeyUp()
 
 }
